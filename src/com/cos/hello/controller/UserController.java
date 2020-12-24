@@ -13,8 +13,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.cos.hello.config.DBconn;
-import com.cos.hello.dao.UsersDao;
 import com.cos.hello.model.Users;
+import com.cos.hello.service.UsersService;
+import com.mysql.cj.protocol.Resultset;
 
 import config.DBConnection;
 
@@ -56,6 +57,8 @@ public class UserController extends HttpServlet{
 	}
 	
 	private void route(String gubun,HttpServletRequest req, HttpServletResponse resp) throws Exception {
+		UsersService usersService=new UsersService();
+		
 		if(gubun.equals("login")) {
 			resp.sendRedirect("auth/login.jsp");//한번 더 requestz
 		}else if(gubun.equals("join")) {
@@ -65,53 +68,39 @@ public class UserController extends HttpServlet{
 		}else if(gubun.equals("updateOne")) {
 			resp.sendRedirect("user/updateOne.jsp");//한번 더 request
 		}else if(gubun.equals("joinProc")) {	// 회원가입 수행해줘
+			usersService.회원가입(req, resp);
 			// 데이터 원형  username=ssar&password=1234&email=ssar@nate.com
 			
 			// 1번 form의 input 태그에 있는 3가지 값 username, password, email 받기
 			
 			// getParameter() 함수는 get방식의 데이터와 post방식의 데이터를 다 받을 수 있다.
 			// 단 post방식에서는 데이터 타입이 x-www-form-urlencoded 방식만 받을 수 있음.
-			String username=req.getParameter("username"); 
-			String password=req.getParameter("password"); 
-			String email=req.getParameter("email"); 
 			
-			Users user=Users.builder()
-					.username(username)
-					.password(password)
-					.email(email)
-					.build();
-			
-			//모델에 데이터 삽입
-			UsersDao usersDao=new UsersDao();	//싱글톤으로 바꾸기
-			int result=usersDao.insert(user);
 			
 			//추가(username, password, email);
-			HttpSession session=req.getSession();
-			session.setAttribute("sessionUser", user);
+//			HttpSession session=req.getSession();
+//			session.setAttribute("sessionUser", user);
 			
-			System.out.println("=======joinProc=======");
-			System.out.println(username);
-			System.out.println(password);
-			System.out.println(email);
-			System.out.println("=======joinProc=======");
-			
-			
-			if(result==1) {
-				resp.sendRedirect("auth/login.jsp");
-			}else {
-				resp.sendRedirect("auth/join.jsp");
-			}
+//			System.out.println("=======joinProc=======");
+//			System.out.println(username);
+//			System.out.println(password);
+//			System.out.println(email);
+//			System.out.println("=======joinProc=======");
 
-			
 		}else if(gubun.equals("loginProc")) {
+			usersService.로그인(req, resp);
+			//SELECT id, username, email FROM users WHERE username=?AND password=?
+			// DAO의 함수명 : login() return을 Users 오브젝트를 리턴
+			// 정상 : 세션에 Users 오브젝트 담고 index.jsp
+			// 비정상 : login.jsp
+			// 응집도 올리고 결합도 낮춤
+
 			// 1번 전달되는 값 받기
-			String username=req.getParameter("username");
-			String password=req.getParameter("password");
-			
-			System.out.println("=======loginProc=======");
-			System.out.println(username);
-			System.out.println(password);
-			System.out.println("=======loginProc=======");
+
+//			System.out.println("=======loginProc=======");
+//			System.out.println(username);
+//			System.out.println(password);
+//			System.out.println("=======loginProc=======");
 			
 			// 2번 데이터베이스 값이 있는지 select 해서 확인 - 생략
 			// 3번 

@@ -2,9 +2,15 @@ package com.cos.hello.dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import com.cos.hello.config.DBconn;
 import com.cos.hello.model.Users;
+import com.mysql.cj.protocol.Resultset;
 
 public class UsersDao {
 	
@@ -26,5 +32,26 @@ public class UsersDao {
 		}
 		
 		return -1;
+	}
+	public Users login(Users user) throws SQLException {
+		StringBuffer sb=new StringBuffer();
+		sb.append("SELECT id, username, email FROM users WHERE username=? AND password=?");
+		String sql=sb.toString();
+		Connection conn=DBconn.getInstance();
+		
+		PreparedStatement pstmt=conn.prepareStatement(sql);
+		pstmt.setString(1, user.getUsername());
+		pstmt.setString(2, user.getPassword());
+		ResultSet rs=pstmt.executeQuery();
+		
+		if(rs.next()) {
+			Users usersEntity=Users.builder()
+					.username(user.getUsername())
+					.password(user.getPassword())
+					.build();
+			return usersEntity;
+		}
+		
+		return null;
 	}
 }
