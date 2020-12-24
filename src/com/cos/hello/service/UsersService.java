@@ -1,6 +1,7 @@
 package com.cos.hello.service;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.SQLException;
 
 import javax.servlet.RequestDispatcher;
@@ -11,6 +12,7 @@ import javax.servlet.http.HttpSession;
 
 import com.cos.hello.dao.UsersDao;
 import com.cos.hello.model.Users;
+import com.cos.hello.util.Script;
 
 public class UsersService {
 	
@@ -60,21 +62,17 @@ public class UsersService {
 		
 		UsersDao usersDao=new UsersDao();
 		Users userEntity=usersDao.login(user);
-		
-		System.out.println("로그인 user"+user);
-		System.out.println(userEntity);
-		System.out.println(user.getUsername());
-		System.out.println(userEntity.getUsername());
 
-		if( (user.getUsername().equals(userEntity.getUsername()))&&(user.getPassword().equals(userEntity.getPassword()))) {
-			resp.sendRedirect("index.jsp");
+		if(userEntity!=null) {
+			Script.href(resp, "index.jsp", "login success");
+			//한글처리를 위해 resp 객체를 건드린다.
+			//MIME 타입
+			//Http Header에 content-type 공부
 			HttpSession session=req.getSession();
 			session.setAttribute("sessionUser", userEntity);
-
 			System.out.println("로그인 완료");
 		}else {
-			System.out.println("로그인 실패");
-			resp.sendRedirect("auth/login.jsp");
+			Script.back(resp, "login fail");
 		}
 	}
 	
@@ -142,7 +140,7 @@ public class UsersService {
 		int result=usersDao.delete(id);
 		if(result==1) {
 			session.invalidate();
-			resp.sendRedirect("index.jsp");
+			
 		}else {
 			// 이전 페이지로 이동 (히스토리 백)
 			resp.sendRedirect("user?gubun=updateOne");
